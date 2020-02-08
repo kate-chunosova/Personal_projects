@@ -10,6 +10,7 @@ from pandas.tseries.holiday import USFederalHolidayCalendar as calendar
 from scipy.stats import skew
 from xgboost import XGBRegressor
 from sklearn.linear_model import Ridge
+from sklearn.metrics import r2_score
 
 from ie_bike_model.util import read_data, get_season, get_model_path
 
@@ -148,20 +149,23 @@ def train_xgboost(hour):
 
     hour_d = hour_d.select_dtypes(exclude="category")
 
-    hour_d_train_x, _, hour_d_train_y, _, = split_train_test(hour_d)
+    hour_d_train_x, hour_d_test_x, hour_d_train_y, hour_d_test_y = split_train_test(
+        hour_d
+    )
 
     xgb = XGBRegressor(
-        max_depth=3,
-        learning_rate=0.01,
-        n_estimators=15,
+        max_depth=6,
+        learning_rate=0.06,
+        n_estimators=1000,
         objective="reg:squarederror",
         subsample=0.8,
-        colsample_bytree=1,
+        colsample_bytree=0.5,
         seed=1234,
-        gamma=1,
+        gamma=1.5,
     )
 
     xgb.fit(hour_d_train_x, hour_d_train_y)
+
     return xgb
 
 
@@ -178,7 +182,9 @@ def train_ridge(hour):
 
     hour_d = hour_d.select_dtypes(exclude="category")
 
-    hour_d_train_x, _, hour_d_train_y, _, = split_train_test(hour_d)
+    hour_d_train_x, hour_d_test_x, hour_d_train_y, hour_d_test_y = split_train_test(
+        hour_d
+    )
 
     ridge = Ridge()
     ridge.fit(hour_d_train_x, hour_d_train_y)
@@ -205,6 +211,7 @@ def train_and_persist(model_dir=None, hour_path=None, model="xgboost"):
 
     if model == "ridge":
         model_clf = train_ridge(hour)
+
     else:
         model_clf = train_xgboost(hour)
     model_path = get_model_path(model_dir, model)
@@ -270,3 +277,33 @@ def predict(parameters, model_dir=None, model="xgboost"):
 
     # Undo np.sqrt(hour["cnt"])
     return int(result ** 2)
+
+
+def score(model_dir=None, hour_path=None, model="xgboost"):
+    model_path = get_model_path(model_dir, model)
+    if not os.path.exists(model_path):
+        train_and_persist(model_dir, model)
+
+    model_clf = joblib.load(model_path)
+
+    hour = read_data(hour_path)
+    hour = preprocess(hour)
+    hour = dummify(hour)
+    hour = postprocess(hour)
+
+    hour_d = pd.get_dummies(hour)
+    regex = re.compile(r"\[|\]|<", re.IGNORECASE)
+    hour_d.columns = [
+        regex.sub("_", col) if any(x in str(col) for x in set(("[", "]", "<"))) else col
+        for col in hour_d.columns.values
+    ]
+
+    hour_d = hour_d.select_dtypes(exclude="category")
+
+    hour_d_train_x, hour_d_test_x, hour_d_train_y, hour_d_test_y = split_train_test(
+        hour_d
+    )
+
+    r2_train = model_clf.score(hour_d_train_x, hour_d_train_y)
+    r2_test = model_clf.score(hour_d_test_x, hour_d_test_y)
+    return r2_train, r2_test
