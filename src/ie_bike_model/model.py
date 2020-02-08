@@ -194,7 +194,7 @@ def postprocess(hour):
     return hour
 
 
-def train_and_persist(model_dir=None, hour_path=None, model='xgboost'):
+def train_and_persist(model_dir=None, hour_path=None, model="xgboost"):
     """
     Trains and persists the model (xgboost by default, the other option is ridge).
     """
@@ -203,7 +203,7 @@ def train_and_persist(model_dir=None, hour_path=None, model='xgboost'):
     hour = dummify(hour)
     hour = postprocess(hour)
 
-    if model == 'ridge':
+    if model == "ridge":
         model_clf = train_ridge(hour)
     else:
         model_clf = train_xgboost(hour)
@@ -253,7 +253,7 @@ def get_input_dict(parameters):
     return df.iloc[0].to_dict()
 
 
-def predict(parameters, model_dir=None, model = 'xgboost'):
+def predict(parameters, model_dir=None, model="xgboost"):
     """
     Returns model prediction.
     """
