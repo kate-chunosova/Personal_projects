@@ -195,26 +195,20 @@ def postprocess(hour):
 
 
 def train_and_persist(model_dir=None, hour_path=None, model='xgboost'):
+    """
+    Trains and persists the model (xgboost by default, the other option is ridge).
+    """
     hour = read_data(hour_path)
     hour = preprocess(hour)
     hour = dummify(hour)
     hour = postprocess(hour)
 
-    # TODO: Implement other models?
     if model == 'ridge':
-        model = train_ridge(hour)
-
-        model_path = get_model_path(model_dir, model = 'ridge')
-
-        joblib.dump(model, model_path)
-
+        model_clf = train_ridge(hour)
     else:
-        model = train_xgboost(hour)
-
-        model_path = get_model_path(model_dir, model = 'xgboost')
-
-        joblib.dump(model, model_path)
-
+        model_clf = train_xgboost(hour)
+    model_path = get_model_path(model_dir, model)
+    joblib.dump(model_clf, model_path)
 
 
 def get_input_dict(parameters):
@@ -259,20 +253,20 @@ def get_input_dict(parameters):
     return df.iloc[0].to_dict()
 
 
-def predict(parameters, model_dir=None):
-    """Returns model prediction.
-
+def predict(parameters, model_dir=None, model = 'xgboost'):
     """
-    model_path = get_model_path(model_dir)
+    Returns model prediction.
+    """
+    model_path = get_model_path(model_dir, model)
     if not os.path.exists(model_path):
-        train_and_persist(model_dir)
+        train_and_persist(model_dir, model)
 
-    model = joblib.load(model_path)
+    model_clf = joblib.load(model_path)
 
     input_dict = get_input_dict(parameters)
     X_input = pd.DataFrame([pd.Series(input_dict)])
 
-    result = model.predict(X_input)
+    result = model_clf.predict(X_input)
 
     # Undo np.sqrt(hour["cnt"])
     return int(result ** 2)
