@@ -1,11 +1,12 @@
 # Bike Sharing Model - Web App
----
+*Author Ekaterina Chunosova*
+
 ## Overview
----
+
 The `app.py` contains code for the flask application that can be run on its own. The rest of the files refer to the `ie_bike_model` package.
 
 ## Running the app
----
+
 0. Make sure you have  `ie_bike_model` package installed, if not install it:  
 
 ```
@@ -24,7 +25,7 @@ $ flask run
 ```
 
 ## Usage
----
+
 #### Getting the prediction
 Launch the application and open http://127.0.0.1:5000/predict?date=2012-10-01T18:00:00&weathersit=1&temperature_C=15&feeling_temperature_C=14&humidity=20&windspeed=5&model=xgboost with your browser.
 
@@ -45,7 +46,7 @@ On this page the user can see the model (Ridge or XGBoost by default) that the p
 - The user can also use the link http://127.0.0.1:5000/scores?model=xgboost to get the xgboost scores, however, it's easier to use just http://127.0.0.1:5000/scores since it will yield the same result.
 
 ## Advanced deployment
----
+
 For example, with uWSGI:
 ```
 $ pip install .
