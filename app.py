@@ -19,15 +19,38 @@ def hello():
 @app.route("/predict", methods=["GET"], endpoint="get_predict")
 def get_predict():
 
+    hour_original = read_data()
+
     parameters = dict()
+    # I decided not to impute parameters["date"] in case it's not given, because it doesn't make any sense that a user would try to predict
+    # cnt on a random date, it makes more sense that he doesn't know other parameters of that date but he should know the date
+
     parameters["date"] = dt.datetime.fromisoformat(request.args.get("date"))
-    parameters["weathersit"] = int(request.args.get("weathersit"))
-    parameters["temperature_C"] = float(request.args.get("temperature_C"))
-    parameters["feeling_temperature_C"] = float(
-        request.args.get("feeling_temperature_C")
+    parameters["weathersit"] = (
+        1
+        if request.args.get("weathersit") is None
+        else int(request.args.get("weathersit"))
+    )  # 1 is the most frequent value
+    parameters["temperature_C"] = (
+        np.mean(hour_original["temp"])
+        if request.args.get("temperature_C") is None
+        else float(request.args.get("temperature_C"))
     )
-    parameters["humidity"] = float(request.args.get("humidity"))
-    parameters["windspeed"] = float(request.args.get("windspeed"))
+    parameters["feeling_temperature_C"] = (
+        np.mean(hour_original["atemp"])
+        if request.args.get("feeling_temperature_C") is None
+        else float(request.args.get("feeling_temperature_C"))
+    )
+    parameters["humidity"] = (
+        np.mean(hour_original["hum"])
+        if request.args.get("humidity") is None
+        else float(request.args.get("humidity"))
+    )
+    parameters["windspeed"] = (
+        np.mean(hour_original["windspeed"])
+        if request.args.get("windspeed") is None
+        else float(request.args.get("windspeed"))
+    )
     model = str(request.args.get("model", "xgboost"))
 
     result = predict(parameters, model=model)
