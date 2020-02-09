@@ -69,6 +69,7 @@ def get_score():
     r2_train, r2_test = score(model=model)
 
     return {
+        "Model": model,
         "R-squared for Train:": r2_train.round(2),
         "R-squared for Test:": r2_test.round(2),
     }
