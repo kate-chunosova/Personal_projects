@@ -268,7 +268,7 @@ def predict(parameters, model_dir=None, model_name="xgboost"):
     model_path = get_model_path(model_dir, model=model_name)
     print(model_path)
     if not os.path.exists(model_path):
-        train_and_persist(model_dir, model = model_name)
+        train_and_persist(model_dir, model=model_name)
 
     model_clf = joblib.load(model_path)
 
@@ -282,9 +282,9 @@ def predict(parameters, model_dir=None, model_name="xgboost"):
 
 
 def score(model_dir=None, hour_path=None, model_name="xgboost"):
-    model_path = get_model_path(model_dir, model = model_name)
+    model_path = get_model_path(model_dir, model=model_name)
     if not os.path.exists(model_path):
-        train_and_persist(model_dir, model = model_name)
+        train_and_persist(model_dir, model=model_name)
 
     model_clf = joblib.load(model_path)
 
