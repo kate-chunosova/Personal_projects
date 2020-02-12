@@ -214,6 +214,7 @@ def train_and_persist(model_dir=None, hour_path=None, model="xgboost"):
 
     else:
         model_clf = train_xgboost(hour)
+
     model_path = get_model_path(model_dir, model)
     joblib.dump(model_clf, model_path)
 
@@ -260,13 +261,14 @@ def get_input_dict(parameters):
     return df.iloc[0].to_dict()
 
 
-def predict(parameters, model_dir=None, model="xgboost"):
+def predict(parameters, model_dir=None, model_name="xgboost"):
     """
     Returns model prediction.
     """
-    model_path = get_model_path(model_dir, model)
+    model_path = get_model_path(model_dir, model=model_name)
+    print(model_path)
     if not os.path.exists(model_path):
-        train_and_persist(model_dir, model)
+        train_and_persist(model_dir, model = model_name)
 
     model_clf = joblib.load(model_path)
 
@@ -279,10 +281,10 @@ def predict(parameters, model_dir=None, model="xgboost"):
     return int(result ** 2)
 
 
-def score(model_dir=None, hour_path=None, model="xgboost"):
-    model_path = get_model_path(model_dir, model)
+def score(model_dir=None, hour_path=None, model_name="xgboost"):
+    model_path = get_model_path(model_dir, model = model_name)
     if not os.path.exists(model_path):
-        train_and_persist(model_dir, model)
+        train_and_persist(model_dir, model = model_name)
 
     model_clf = joblib.load(model_path)
 
