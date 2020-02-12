@@ -45,6 +45,8 @@ On this page the user can see the model (Ridge or XGBoost by default) that the p
 - If the user wants to see the scores on the Ridge model, the link can be modified like so: http://127.0.0.1:5000/scores?model=ridge
 - The user can also use the link http://127.0.0.1:5000/scores?model=xgboost to get the xgboost scores, however, it's easier to use just http://127.0.0.1:5000/scores since it will yield the same result.
 
+**!** Ridge training time is about 5-10 seconds, whilst XGBoost training time is about 35-40 seconds. The first time the user clicks on the link the site is going to load for this amount of time (depending on the model).
+
 ## Advanced deployment
 
 For example, with uWSGI:
