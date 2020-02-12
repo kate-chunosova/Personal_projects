@@ -53,7 +53,7 @@ def get_predict():
     )
     model = str(request.args.get("model", "xgboost"))
 
-    result = predict(parameters, model=model)
+    result = predict(parameters, model_name=model)
 
     # Return RMSE
     hour_test = read_data().iloc[15212:17379]
@@ -66,7 +66,7 @@ def get_predict():
 @app.route("/scores", methods=["GET"], endpoint="get_score")
 def get_score():
     model = request.args.get("model", "xgboost")
-    r2_train, r2_test = score(model=model)
+    r2_train, r2_test = score(model_name=model)
 
     return {
         "Model": model,
